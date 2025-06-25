@@ -5,7 +5,7 @@ from workers.download_worker import DownloadWorker
 from workers.csvprocess_worker import CSVProcessWorker
 from workers.makeword_worker import MakeWordWorker
 from workers.clean_worker import CleanWorker
-from workers.batch_replace_worker import BatchReplaceWorker  # 引入 BatchReplaceWorker
+from workers.batch_replace_worker import BatchReplaceWorker
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
