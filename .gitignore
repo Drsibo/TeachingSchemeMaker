@@ -1,0 +1,5 @@
+csvprocess/
+download/
+logs/
+output/
+__pycache__/
