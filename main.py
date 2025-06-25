@@ -20,6 +20,6 @@ if __name__ == "__main__":
 
     # 将工作线程设置到主窗口
     window.set_workers(download_worker, csvprocess_worker, makeword_worker, clean_worker, batch_replace_worker)
-
+    # 显示主窗口
     window.show()
     sys.exit(app.exec())
