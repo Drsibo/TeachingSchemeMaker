@@ -24,6 +24,8 @@ class Ui_Form(object):
         if not Form.objectName():
             Form.setObjectName(u"Form")
         Form.resize(485, 453)
+        icon = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.EditCopy))
+        Form.setWindowIcon(icon)
         self.verticalLayout_3 = QVBoxLayout(Form)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout = QVBoxLayout()
@@ -108,9 +110,9 @@ class Ui_Form(object):
     # setupUi
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        Form.setWindowTitle(QCoreApplication.translate("Form", u"\u8f7b\u7eba\u804c\u4e1a\u5b66\u9662\u6559\u6848\u751f\u6210\u5668 QQ1717823", None))
         self.download_btn.setText(QCoreApplication.translate("Form", u"2.\u4e0b\u8f7d\u5de5\u4f5c\u6d41CSV", None))
-        self.label_3.setText(QCoreApplication.translate("Form", u"1.\u4f7f\u7528\u5de5\u4f5c\u6d41", None))
+        self.label_3.setText(QCoreApplication.translate("Form", u"1.\u4f7f\u7528\u5de5\u4f5c\u6d41\u751f\u6210csv\u6587\u4ef6(\u7f51\u9875\u64cd\u4f5c)", None))
         self.csvprocess_btn.setText(QCoreApplication.translate("Form", u"3.\u5904\u7406CSV\u547d\u540d", None))
         self.makeword_btn.setText(QCoreApplication.translate("Form", u"4.\u4e00\u952e\u751f\u6210\u6559\u6848", None))
         self.clean_btn.setText(QCoreApplication.translate("Form", u"\u4e00\u952e\u6e05\u7a7a", None))
