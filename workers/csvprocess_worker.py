@@ -3,6 +3,7 @@ import os
 import csv
 import shutil
 import re
+from docx import Document  # 用于读取Word模板文件
 from utils.log_util import LogUtil
 
 class CSVProcessWorker(QThread):
@@ -12,6 +13,40 @@ class CSVProcessWorker(QThread):
         super().__init__()
         self.log_util = LogUtil(level='INFO')
         self.logger = self.log_util.get_logger()
+        self.template_path = '../template.docx'  # 模板文件路径
+        self.expected_columns = self.get_placeholder_count()  # 从模板文件中获取占位符数量
+
+    def get_placeholder_count(self):
+        """从Word模板文件中获取占位符数量"""
+        try:
+            if not os.path.exists(self.template_path):
+                self.logger.error(f"模板文件不存在：{self.template_path}")
+                return 11  # 默认值，如果模板文件不存在
+
+            doc = Document(self.template_path)
+            placeholder_count = 0
+
+            # 定义正则表达式来匹配占位符 {{1}}, {{2}}, 等
+            placeholder_pattern = re.compile(r'\{\{\{(\d+)\}\}\}')
+
+            # 遍历文档中的每个段落
+            for paragraph in doc.paragraphs:
+                matches = placeholder_pattern.findall(paragraph.text)
+                placeholder_count += len(matches)
+
+            # 遍历文档中的每个表格
+            for table in doc.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        for paragraph in cell.paragraphs:
+                            matches = placeholder_pattern.findall(paragraph.text)
+                            placeholder_count += len(matches)
+
+            self.logger.info(f"模板文件中共有 {placeholder_count} 个占位符")
+            return placeholder_count
+        except Exception as e:
+            self.logger.error(f"读取模板文件时出错：{e}")
+            return 11  # 默认值，如果读取模板文件出错
 
     def run(self):
         try:
@@ -47,7 +82,31 @@ class CSVProcessWorker(QThread):
                                 self.logger.warning(f"文件 {filename} 格式不正确或缺少元素，无法重命名")
                     except Exception as e:
                         self.logger.error(f"处理文件 {filename} 时出错: {e}")
+
+            # 检查处理后的 CSV 文件
+            self.check_processed_csvs()
+
         except Exception as e:
             self.logger.error(f"CSV 处理任务出错: {e}")
         finally:
             self.logger.info("CSV 处理任务结束")
+
+    def check_processed_csvs(self):
+        """检查处理后的 CSV 文件列数"""
+        csvprocess_dir = 'csvprocess'
+
+        if not os.path.exists(csvprocess_dir):
+            self.log_signal.emit(f"警告：文件夹不存在：{csvprocess_dir}")
+            return
+
+        for filename in os.listdir(csvprocess_dir):
+            if filename.endswith('.csv'):
+                file_path = os.path.join(csvprocess_dir, filename)
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as file:
+                        csv_reader = csv.reader(file)
+                        first_row = next(csv_reader, None)  # 获取第一行
+                        if first_row and len(first_row) != self.expected_columns:
+                            self.log_signal.emit(f"警告：文件 '{filename}' 列数不等于模板中的占位符数量 ({self.expected_columns}), 可能有误，请手动检查并更改")
+                except Exception as e:
+                    self.log_signal.emit(f"检查文件 '{filename}' 时出错：{e}")
