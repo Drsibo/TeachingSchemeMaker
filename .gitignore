@@ -3,3 +3,5 @@ download/
 logs/
 output/
 __pycache__/
+build/
+main.spec
