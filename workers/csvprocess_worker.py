@@ -13,7 +13,7 @@ class CSVProcessWorker(QThread):
         super().__init__()
         self.log_util = LogUtil(level='INFO')
         self.logger = self.log_util.get_logger()
-        self.template_path = '../template.docx'  # 模板文件路径
+        self.template_path = 'template.docx'  # 模板文件路径
         self.expected_columns = self.get_placeholder_count()  # 从模板文件中获取占位符数量
 
     def get_placeholder_count(self):
@@ -24,15 +24,17 @@ class CSVProcessWorker(QThread):
                 return 11  # 默认值，如果模板文件不存在
 
             doc = Document(self.template_path)
-            placeholder_count = 0
+            placeholder_set = set()  # 使用集合来存储占位符，自动去除重复项
 
             # 定义正则表达式来匹配占位符 {{1}}, {{2}}, 等
-            placeholder_pattern = re.compile(r'\{\{\{(\d+)\}\}\}')
+            placeholder_pattern = re.compile(r'\{\{\s*(\d+)\s*\}\}')
 
             # 遍历文档中的每个段落
             for paragraph in doc.paragraphs:
                 matches = placeholder_pattern.findall(paragraph.text)
-                placeholder_count += len(matches)
+                if matches:
+                    self.logger.info(f"段落中匹配到的占位符: {matches}")
+                placeholder_set.update(matches)
 
             # 遍历文档中的每个表格
             for table in doc.tables:
@@ -40,8 +42,11 @@ class CSVProcessWorker(QThread):
                     for cell in row.cells:
                         for paragraph in cell.paragraphs:
                             matches = placeholder_pattern.findall(paragraph.text)
-                            placeholder_count += len(matches)
+                            if matches:
+                                self.logger.info(f"表格单元格中匹配到的占位符: {matches}")
+                            placeholder_set.update(matches)
 
+            placeholder_count = len(placeholder_set)  # 集合的大小即为占位符的数量
             self.logger.info(f"模板文件中共有 {placeholder_count} 个占位符")
             return placeholder_count
         except Exception as e:

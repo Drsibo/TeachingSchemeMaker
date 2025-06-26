@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget,QFileDialog
 from ui.Ui_TeachingSchemeMakerWindow import Ui_Form  # 引入由Qt Designer生成的UI类
 
 class MainWindow(QWidget):
@@ -45,8 +45,15 @@ class MainWindow(QWidget):
 
     def download_button_clicked(self):
         """下载按钮槽函数"""
-        self.append_log("开始下载任务...")
-        self.download_worker.start()
+        # 打开文件选择对话框，让用户选择 CSV 文件
+        csv_file_path, _ = QFileDialog.getOpenFileName(self, "选择 CSV 文件", "", "CSV 文件 (*.csv)")
+        if csv_file_path:
+            self.append_log(f"用户选择了文件: {csv_file_path}")
+            # 设置 DownloadWorker 的 CSV 文件路径
+            self.download_worker.csv_file_path = csv_file_path
+            self.download_worker.start()
+        else:
+            self.append_log("未选择任何文件")
 
     def csvprocess_button_clicked(self):
         """CSV处理按钮槽函数"""

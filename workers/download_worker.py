@@ -12,18 +12,16 @@ class DownloadWorker(QThread):
         super().__init__()
         self.log_util = LogUtil(level='INFO')
         self.logger = self.log_util.get_logger()
+        self.csv_file_path = 'csvDownloadURL.csv'  # 默认值
 
     def run(self):
         try:
-            # 定义 CSV 文件的路径
-            csv_file_path = 'csvDownloadURL.csv'  # 替换为你的 CSV 文件路径
-
             # 创建下载目录
             download_dir = 'download'
             os.makedirs(download_dir, exist_ok=True)
 
             # 读取 CSV 文件
-            with open(csv_file_path, 'r') as csvfile:
+            with open(self.csv_file_path, 'r') as csvfile:
                 # 按行读取 CSV 文件
                 for line in csvfile:
                     # 去除行末的换行符，并按逗号分隔 URLs
